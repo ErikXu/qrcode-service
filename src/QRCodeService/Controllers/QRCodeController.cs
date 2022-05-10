@@ -51,9 +51,10 @@ namespace QRCodeService.Controllers
                 command = $"{command} -v {form.Version}";
             }
 
-            var filename = Path.Combine(outDir, isGif ? $"{Guid.NewGuid()}.gif" : $"{Guid.NewGuid()}.png");
+            var filename = isGif ? $"{Guid.NewGuid()}.gif" : $"{Guid.NewGuid()}.png";
+            var filePath = Path.Combine(outDir, filename);
 
-            command = $"{command} -n {filename} -d {outDir} -con {form.Contrast} -bri {form.Brightness}";
+            command = $"{command} -n {filePath} -d {outDir} -con {form.Contrast} -bri {form.Brightness}";
 
             var (code, message) = ExecuteCommand(command);
 
@@ -62,8 +63,8 @@ namespace QRCodeService.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, new { Message = message });
             }
 
-            var bytes = await System.IO.File.ReadAllBytesAsync(Path.Combine(outDir, filename));
-            System.IO.File.Delete(Path.Combine(outDir, filename));
+            var bytes = await System.IO.File.ReadAllBytesAsync(filePath);
+            System.IO.File.Delete(filePath);
 
             if (string.IsNullOrWhiteSpace(tmpPath))
             {
