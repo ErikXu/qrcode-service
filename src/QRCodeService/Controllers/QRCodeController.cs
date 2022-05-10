@@ -66,7 +66,7 @@ namespace QRCodeService.Controllers
             var bytes = await System.IO.File.ReadAllBytesAsync(filePath);
             System.IO.File.Delete(filePath);
 
-            if (string.IsNullOrWhiteSpace(tmpPath))
+            if (!string.IsNullOrWhiteSpace(tmpPath))
             {
                 System.IO.File.Delete(tmpPath);
             }
