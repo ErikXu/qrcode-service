@@ -6,28 +6,40 @@ namespace QRCodeService
     public class QRCodeForm
     {
         /// <summary>
-        /// 需要生成的二维码内容
+        /// Content to gen to qrcode
         /// </summary>
         [Required]
         public string? Text { get; set; }
 
         /// <summary>
-        /// 边长，范围是 1 至 40，数字越大边长越大
+        /// Length of the qrcode image range 1 to 40
         /// </summary>
         [Range(1, 40)]
         public int? Version { get; set; } = null;
 
         /// <summary>
-        /// 纠错水平，范围是 L, M, Q, H，从左到右依次升高，默认是 H
+        /// Error correction level, is one of L, M, Q and H, default H
         /// </summary>
         [DefaultValue("H")]
         [LevelValidation]
         public string Level { get; set; } = "H";
 
         /// <summary>
-        /// 是否生成彩色二维码，需上传文件
+        /// Is qrcode image colorized
         /// </summary>
         public bool Colorized { get; set; } = false;
+
+        /// <summary>
+        /// The contrast of the qrcode image, defaule 1.0
+        /// </summary>
+        [DefaultValue(1.0)]
+        public double Contrast { get; set; } = 1.0;
+
+        /// <summary>
+        /// The brightness of the qrcode image, defaule 1.0
+        /// </summary>
+        [DefaultValue(1.0)]
+        public double Brightness { get; set; } = 1.0;
     }
 
     public class LevelValidationAttribute : ValidationAttribute

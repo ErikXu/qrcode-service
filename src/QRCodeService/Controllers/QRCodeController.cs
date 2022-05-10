@@ -23,13 +23,9 @@ namespace QRCodeService.Controllers
             }
 
             var command = $"amzqr {form.Text} -l {form.Level.ToUpper()}";
-            if (form.Version != null)
-            {
-                command = $"{command} -v {form.Version}";
-            }
 
             var isGif = false;
-
+            var tmpPath = string.Empty;
             if (file != null)
             {
                 var ext = Path.GetExtension(file.FileName).ToLower();
@@ -38,16 +34,26 @@ namespace QRCodeService.Controllers
                     isGif = true;
                 }
 
-                var tmpPath = Path.Combine(outDir, isGif ? $"{Guid.NewGuid()}.gif" : $"{Guid.NewGuid()}.png");
+                tmpPath = Path.Combine(outDir, isGif ? $"{Guid.NewGuid()}.gif" : $"{Guid.NewGuid()}.png");
                 await using var stream = System.IO.File.Create(tmpPath);
                 await file.CopyToAsync(stream);
-           
+
                 command = form.Colorized ? $"{command} -p {tmpPath} -c" : $"{command} -p {tmpPath}";
+
+                if (form.Version == null)
+                {
+                    form.Version = 10;
+                }
+            }
+
+            if (form.Version != null)
+            {
+                command = $"{command} -v {form.Version}";
             }
 
             var filename = Path.Combine(outDir, isGif ? $"{Guid.NewGuid()}.gif" : $"{Guid.NewGuid()}.png");
 
-            command = $"{command} -n {filename} -d {outDir}";
+            command = $"{command} -n {filename} -d {outDir} -con {form.Contrast} -bri {form.Brightness}";
 
             var (code, message) = ExecuteCommand(command);
 
@@ -58,6 +64,11 @@ namespace QRCodeService.Controllers
 
             var bytes = await System.IO.File.ReadAllBytesAsync(Path.Combine(outDir, filename));
             System.IO.File.Delete(Path.Combine(outDir, filename));
+
+            if (string.IsNullOrWhiteSpace(tmpPath))
+            {
+                System.IO.File.Delete(tmpPath);
+            }
 
             var contentType = isGif ? "image/gif" : "image/png";
             return File(bytes, contentType, filename);
